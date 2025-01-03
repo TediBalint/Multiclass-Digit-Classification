@@ -20,6 +20,25 @@ namespace Multiclass_Digit_Classification
 			_image_data = new List<double>();
 			setImageData(filePath);
 		}
+		public void Show()
+		{
+			Console.Clear();
+			Console.SetCursorPosition(0, 0);
+
+			int n = (int)Math.Sqrt(ImageData.Count);
+
+			for (int i = 0; i < n; i++)
+			{
+				for (int j = 0; j < n; j++)
+				{
+					if (ImageData[i * n + j] > 0.2) Console.BackgroundColor = ConsoleColor.White;
+					else Console.BackgroundColor = ConsoleColor.Black;
+					Console.Write(" ");
+				}
+				Console.WriteLine();
+			}
+			Console.SetCursorPosition(0, 10);
+		}
 		private void setImageData(string filePath)
 		{
 

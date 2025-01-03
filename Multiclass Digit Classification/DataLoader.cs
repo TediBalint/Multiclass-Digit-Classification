@@ -20,7 +20,7 @@ namespace Multiclass_Digit_Classification
 				int size = 0; int skipped = 0;
 
 				int label = int.Parse(dir[dir.Length-1].ToString());
-                Console.WriteLine(label);
+                Console.WriteLine($"Loading label {label}...");
 				List<string> files = Directory.GetFiles(dir).ToList();
 				foreach (string file in files) 
 				{

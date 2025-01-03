@@ -10,7 +10,14 @@ namespace Multiclass_Digit_Classification
 	{
 		private List<Image> _images;
 		private int _current_index;
-		public Image NextImage { get { return _images[_current_index++]; } }
+		public Image NextImage 
+		{
+			get 
+			{
+				if (_current_index >= _images.Count) _current_index = 0;
+				return _images[_current_index++]; 
+			} 
+		}
         public Dataset()
         {
             _current_index = 0;
