@@ -15,6 +15,8 @@ namespace Multiclass_Digit_Classification
 		private readonly List<double> _hidden_biases;
 		private readonly List<double> _output_biases;
 
+		private double _lowest_loss;
+
 		private double _lr;
 
 		private DataLoader _loader;
@@ -22,6 +24,7 @@ namespace Multiclass_Digit_Classification
 		private int run_counter = 0;
 		public NeuralNetwork(double lr, string inputFolder, int datasize)
 		{
+			_lowest_loss = double.MaxValue;
 			_input_hidden_weights = new List<double>();
 			_hidden_output_weights = new List<double>();
 			_hidden_biases = new List<double>();
@@ -53,7 +56,7 @@ namespace Multiclass_Digit_Classification
 				if (debug && run_counter % 100 == 0) Console.Write($"Bach {i + 1}.\t");
 				runBach(bachsize, debug);
 			}
-			if (save) Save();
+			if (save) Save(Statics.SAVEFILE);
 		}
 		public void Test(int amount, int shuffle_frequency = 100)
 		{
@@ -145,8 +148,13 @@ namespace Multiclass_Digit_Classification
 						input_hidden_weight_gradient_avgs[k + j * m] += getHiddenGradientToWeight(hidden_bias, input_values[k]);
 					}
 				}
-
-				loss_avg += getLoss(activatedOutputLayerValues, true_table);
+				double curr_loss = getLoss(activatedOutputLayerValues, true_table);
+				if(curr_loss > _lowest_loss)
+				{
+					_lowest_loss = curr_loss;
+					Save(Statics.LOWESTWEIGHSTFILE);
+				}
+				loss_avg += curr_loss;
 
 			}
 
@@ -285,9 +293,9 @@ namespace Multiclass_Digit_Classification
 			}
 			return output;
         }
-		private void Save()
+		private void Save(string filePath)
 		{
-			using (StreamWriter sw = new StreamWriter(Statics.SAVEFILE))
+			using (StreamWriter sw = new StreamWriter(filePath))
 			{
 				sw.WriteLine(string.Join(';', _input_hidden_weights));
 				sw.WriteLine(string.Join(';', _hidden_output_weights));
@@ -297,10 +305,10 @@ namespace Multiclass_Digit_Classification
 		}
 		private void randomizeWeightsBiases()
 		{
-			randomizeList(_input_hidden_weights, 1024);
-			randomizeList(_hidden_output_weights, 160);
-			randomizeList(_hidden_biases, 16);
-			randomizeList(_output_biases, 10);
+			randomizeList(_input_hidden_weights, Statics.HIDDEN_NEURONS * Statics.INPUT_NEURONS);
+			randomizeList(_hidden_output_weights, Statics.HIDDEN_NEURONS * Statics.OUTPUT_NEURONS);
+			randomizeList(_hidden_biases, Statics.HIDDEN_NEURONS);
+			randomizeList(_output_biases, Statics.OUTPUT_NEURONS);
 		}
 		private void randomizeList(List<double> random_list, int length, double min = -0.5, double max = 0.5) 
 		{

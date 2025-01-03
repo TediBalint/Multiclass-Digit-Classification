@@ -4,18 +4,11 @@
 	{
 		static void Main(string[] args)
 		{
-			//NeuralNetwork neuralNetwork = new NeuralNetwork(0.01, Statics.TRAININGFOLDERNAME, 200);
-			//NeuralNetwork neuralNetwork = new NeuralNetwork(0.000001, Statics.TESTINGFOLDERNAME, 1000, "weights1.txt");
-			//neuralNetwork.Train(10000, 64, false, true);
-			//neuralNetwork.Test(10000);
-
 			ShowCase();
-
-
 		}
 		private static void ShowCase()
 		{
-			NeuralNetwork neuralNetwork = new NeuralNetwork(0.000001, Statics.TESTINGFOLDERNAME, 1000, "weights1.txt");
+			NeuralNetwork neuralNetwork = new NeuralNetwork(0.000001, Statics.TESTINGFOLDERNAME, 1000, Statics.LOWESTWEIGHSTFILE);
 			while (true) 
 			{
 				Image randImage = neuralNetwork.GetRandomImage();
