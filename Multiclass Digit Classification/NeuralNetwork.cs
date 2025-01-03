@@ -25,18 +25,35 @@ namespace Multiclass_Digit_Classification
 			_loader = new DataLoader(inputFolder, datasize);
 			randomizeWeightsBiases();
 		}
-		private double getCategoricalCrossEntropyGradient(double prediction, int true_label)
+		
+		private double getOutputGradientToWeight(double prediction, int true_label, double hidden_activation_output)
 		{
-			return prediction - true_label;
+			return (prediction - true_label) * prediction * (1 - prediction) * hidden_activation_output;
 		}
-		private double getSoftMaxGradient(double prediction, int kroneckerDelta,int true_label)
+		private double getOutputGradientToBias(double prediction, int true_label)
 		{
-			return prediction * (kroneckerDelta - true_label);
+			return (prediction - true_label) * prediction * (1 - prediction);
 		}
-		private int getKroneckerDelta(int prediction_index, int true_label)
+		private double getHiddenGradientToWeight(double prediction, int true_label, double input_value, int input_index)
 		{
-			return prediction_index == true_label ? 1 : 0;
+			return getHiddenGradientToActivation(prediction, true_label, input_index) * getReLUGradient(0) * ;
 		}
+
+
+		private double getHiddenGradientToActivation(double prediction, int true_label, int skip)
+		{
+			double sum = 0;
+			for (int i = 0; i < _hidden_biases.Count; i++)
+			{
+				sum += getOutputGradientToBias(prediction, true_label) * _output_hidden_weights[i + skip * _hidden_biases.Count];
+			}
+			return sum;
+		}
+		
+		private double getReLUGradient(double x)
+		{
+			return x > 0 ? 1 : 0;
+		}	
 		private double getLoss(List<double> prediction, List<int> true_label) 
 		{
 			double loss_sum = 0;
@@ -58,11 +75,19 @@ namespace Multiclass_Digit_Classification
 		}
 		private List<double> computeHiddenLayerValues(List<double> weights, List<double> values, List<double> biases)
 		{
+			return computeHiddenLayerValuesRaw(weights, values, biases).Select(hiddenActivationReLU).ToList();
+		}
+		private List<double> computeHiddenLayerValues(List<double> computed_raw_values)
+		{
+			return computed_raw_values.Select(hiddenActivationReLU).ToList();
+		}
+		private List<double> computeHiddenLayerValuesRaw(List<double> weights, List<double> values, List<double> biases)
+		{
 			List<double> hidden = new List<double>();
 			int weight_per_value = weights.Count / values.Count;
 			for (int i = 0; i < weight_per_value; i++)
 			{
-				hidden.Add(hiddenActivationReLU(computeWeightedSum(weights, values, biases[i], i)));
+				hidden.Add(computeWeightedSum(weights, values, biases[i], i));
 			}
 			return hidden;
 		}
@@ -75,6 +100,10 @@ namespace Multiclass_Digit_Classification
 				output.Add(computeWeightedSum(weights, values, biases[i], i));
 			}
 			return output;
+		}
+		private List<double> computeOutputLayerValues(List<double> computed_raw_values)
+		{
+			return outputActivationSoftMax(computed_raw_values);
 		}
 		private List<double> computeOutputLayerValues(List<double> weights, List<double> values, List<double> biases)
 		{
